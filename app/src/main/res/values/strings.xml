@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Asme2023</string>
+    <string name="gps_not_supported">需取得位置相關權限</string>
+    <string name="bluetooth_not_supported">設備不支持藍芽</string>
+    <string name="ble_not_supported">設備不支持低功耗藍芽</string>
+    <string name="text_rc_percentage">0%</string>
+</resources>
