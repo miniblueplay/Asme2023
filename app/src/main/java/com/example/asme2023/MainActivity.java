@@ -3,6 +3,7 @@ package com.example.asme2023;
 import static android.os.SystemClock.sleep;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -14,6 +15,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
@@ -26,6 +28,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -436,8 +439,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     else batAAdj = 0;
                                     // 鋰電電池水波容量圖
                                     double batteryLevel = ((Float.parseFloat(receiveStrArray[6]) - Float.parseFloat(mUserSetData.read("User", "etnBatVMin"))) / (Float.parseFloat(mUserSetData.read("User", "etnBatVMax")) - Float.parseFloat(mUserSetData.read("User", "etnBatVMin"))));
-                                    mCircleViewBat.setmWaterLevel((float) batteryLevel);
-                                    binding.textBatPercentage.setText((int)(batteryLevel*100) + "%");
+                                    if(batteryLevel > 0){
+                                        mCircleViewBat.setmWaterLevel((float) batteryLevel);
+                                        binding.textBatPercentage.setText((int)(batteryLevel*100) + "%");
+                                    }else{
+                                        mCircleViewBat.setmWaterLevel(0.00f);
+                                        binding.textBatPercentage.setText("0%");
+                                    }
+
                                     // 超級電容
                                     binding.textRcV.setText(String.format("%06.3f", Float.parseFloat(receiveStrArray[9])));
                                     binding.textRcA.setText(String.format("%04.2f", Float.parseFloat(receiveStrArray[10])));
@@ -446,8 +455,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     else rcAAdj = 0;
                                     // 超級電容水波容量圖
                                     double rcLevel = ((Float.parseFloat(receiveStrArray[9]) - Float.parseFloat(mUserSetData.read("User", "etnRcVMin"))) / (Float.parseFloat(mUserSetData.read("User", "etnRcVMax")) - Float.parseFloat(mUserSetData.read("User", "etnRcVMin"))));
-                                    mCircleViewRc.setmWaterLevel((float) rcLevel);
-                                    binding.textRcPercentage.setText((int)(rcLevel*100) + "%");
+                                    if(rcLevel > 0){
+                                        mCircleViewRc.setmWaterLevel((float) rcLevel);
+                                        binding.textRcPercentage.setText((int)(rcLevel*100) + "%");
+                                    }else{
+                                        mCircleViewRc.setmWaterLevel(0.00f);
+                                        binding.textRcPercentage.setText("0%");
+                                    }
+
                                     // 鋰電電池可用時間
                                     double remainingCapacityBat = (batteryLevel*100) * Integer.parseInt(mUserSetData.read("User", "etnBatMah")) / 100.0;
                                     if (batAAdj != 0){
@@ -879,6 +894,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ex.printStackTrace();
         }
         return versionName;
+    }
+
+    /**按下返回鍵**/
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            ConfirmExit(); // 按返回鍵，則執行退出確認
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /**退出確認框**/
+    public void ConfirmExit(){
+        AlertDialog.Builder ad=new AlertDialog.Builder(MainActivity.this);
+        ad.setTitle("離開");
+        ad.setMessage("確定要離開此程式嗎?");
+        ad.setPositiveButton("是", new DialogInterface.OnClickListener() { // 退出按鈕
+            public void onClick(DialogInterface dialog, int i) {
+                // TODO Auto-generated method stub
+                MainActivity.this.finish(); // 關閉activity
+            }
+        });
+        ad.setNegativeButton("否",new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+                // 不退出不用執行任何操作
+            }
+        });
+        ad.show(); // 顯示對話框
     }
 
     /**將在程式關閉前運行**/
