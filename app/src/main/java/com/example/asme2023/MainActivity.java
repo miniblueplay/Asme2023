@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             if (binding.switchSpeed.isChecked())
                                                 bleSendText[1] = (int) ((int)(currentDistance*0.55865922)*(Double.parseDouble(String.valueOf(binding.etnSetMaxSpeed.getText()))/100));
                                             else
-                                                bleSendText[1] = (int) ((int)(currentDistance*0.55865922)*(Double.parseDouble(String.valueOf(binding.etnSetMaxSpeed.getText()))/200));
+                                                bleSendText[1] = (int) ((int)(currentDistance*0.55865922)*(Double.parseDouble(String.valueOf(binding.etnSetMaxSpeed.getText()))/150));
                                             // 角度
                                             bleSendText[2] = getValueByPercentage(convertValue((int) currentAngle), Integer.parseInt(String.valueOf(binding.etnSetTurnSensitive.getText())));
                                         }
@@ -433,10 +433,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     addData(binding.lineChartWind , (int)(windLevel * 100));
                                     // 鋰電電池
                                     binding.textBatV.setText(String.format("%06.3f", Float.parseFloat(receiveStrArray[6])));
-                                    binding.textBatA.setText(String.format("%04.2f", Float.parseFloat(receiveStrArray[7])));
-                                    if(batAAdj != 0 && Float.parseFloat(receiveStrArray[7]) != 0) batAAdj = (Float.parseFloat(receiveStrArray[7]) + batAAdj) / 2;
-                                    else if (Float.parseFloat(receiveStrArray[7]) != 0) batAAdj = Float.parseFloat(receiveStrArray[7]);
-                                    else batAAdj = 0;
+                                    if(Integer.parseInt(receiveStrArray[8]) / 10 != 1){
+                                        binding.textBatA.setText(String.format("%04.2f", Float.parseFloat(receiveStrArray[7])));
+                                        if(batAAdj != 0 && Float.parseFloat(receiveStrArray[7]) != 0 && batAAdj < Float.parseFloat(receiveStrArray[7])) batAAdj = Float.parseFloat(receiveStrArray[7]);
+                                        else if (batAAdj != 0 && Float.parseFloat(receiveStrArray[7]) != 0);
+                                        else if (Float.parseFloat(receiveStrArray[7]) != 0) batAAdj = Float.parseFloat(receiveStrArray[7]);
+                                    }else{
+                                        binding.textBatA.setText(String.format("- %04.2f", Float.parseFloat(receiveStrArray[7])));
+                                    }
                                     // 鋰電電池水波容量圖
                                     double batteryLevel = ((Float.parseFloat(receiveStrArray[6]) - Float.parseFloat(mUserSetData.read("User", "etnBatVMin"))) / (Float.parseFloat(mUserSetData.read("User", "etnBatVMax")) - Float.parseFloat(mUserSetData.read("User", "etnBatVMin"))));
                                     if(batteryLevel > 0){
@@ -449,10 +453,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                     // 超級電容
                                     binding.textRcV.setText(String.format("%06.3f", Float.parseFloat(receiveStrArray[9])));
-                                    binding.textRcA.setText(String.format("%04.2f", Float.parseFloat(receiveStrArray[10])));
-                                    if(rcAAdj != 0 && Float.parseFloat(receiveStrArray[10]) != 0) rcAAdj = (Float.parseFloat(receiveStrArray[10]) + rcAAdj) / 2;
-                                    else if (Float.parseFloat(receiveStrArray[10]) != 0) rcAAdj = Float.parseFloat(receiveStrArray[10]);
-                                    else rcAAdj = 0;
+                                    if(Integer.parseInt(receiveStrArray[11]) / 10 != 1){
+                                        binding.textRcA.setText(String.format("%04.2f", Float.parseFloat(receiveStrArray[10])));
+                                        if(rcAAdj != 0 && Float.parseFloat(receiveStrArray[10]) != 0 && rcAAdj < Float.parseFloat(receiveStrArray[10])) rcAAdj = Float.parseFloat(receiveStrArray[10]);
+                                        else if (rcAAdj != 0 && Float.parseFloat(receiveStrArray[10]) != 0);
+                                        else if (Float.parseFloat(receiveStrArray[10]) != 0) rcAAdj = Float.parseFloat(receiveStrArray[10]);
+                                    }else{
+                                        binding.textRcA.setText(String.format("- %04.2f", Float.parseFloat(receiveStrArray[10])));
+                                    }
                                     // 超級電容水波容量圖
                                     double rcLevel = ((Float.parseFloat(receiveStrArray[9]) - Float.parseFloat(mUserSetData.read("User", "etnRcVMin"))) / (Float.parseFloat(mUserSetData.read("User", "etnRcVMax")) - Float.parseFloat(mUserSetData.read("User", "etnRcVMin"))));
                                     if(rcLevel > 0){
@@ -468,12 +476,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     if (batAAdj != 0){
                                         double remainingTimeBat = remainingCapacityBat / batAAdj;
                                         binding.textBatTime.setText(String.format("可用時間約：%d分%02d秒", (int)remainingTimeBat/60, (int)remainingTimeBat%60));
+                                    }else{
+                                        binding.textBatTime.setText("可用時間約：0分0秒");
                                     }
                                     // 超級電容可用時間
                                     double remainingCapacityRc = (batteryLevel*100) * Integer.parseInt(mUserSetData.read("User", "etnRcF")) / 100.0;
                                     if (rcAAdj != 0){
                                         double remainingTimeRc = remainingCapacityRc / rcAAdj;
                                         binding.textRcTime.setText(String.format("可用時間約：%d分%02d秒", (int)remainingTimeRc/60, (int)remainingTimeRc%60));
+                                    }else{
+                                        binding.textRcTime.setText("可用時間約：0分0秒");
                                     }
 
                                     // 其他控件
@@ -510,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 while (isBlePostRunning && bleSendText[4] == 1){
                     sendMessage(formatIntArray(bleSendText));
                     bleSendText[4] = 0;
-                    sleep(100);
+                    sleep(50);
                 }
         }
     });

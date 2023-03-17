@@ -63,12 +63,13 @@ public class CircleView extends View {
     }
 
     public void setmWaterLevel(float mWaterLevel) {
-        if (mWaterLevel >= 1f)mWaterLevel = 0.99f;
-        this.mWaterLevel = mWaterLevel;
-        if(mWaterLevel <= 0.2f) mWavePaint.setColor(Color.argb(255, 255, 0, 0)); // 低於等於 20% 顯示紅色
+        if (mWaterLevel >= 0.99f)mWaterLevel = 0.99f;
+        if(mWaterLevel <= 0)mWavePaint.setColor(Color.argb(0, 0, 0, 0)); // 低於等於 0% 不顯示
+        else if(mWaterLevel <= 0.2f) mWavePaint.setColor(Color.argb(255, 255, 0, 0)); // 低於等於 20% 顯示紅色
         else if (mWaterLevel <= 0.5f) mWavePaint.setColor(Color.argb(255, 255, 136, 0)); // 低於等於 50% 顯示橘色
         else if (mWaterLevel <= 0.8f) mWavePaint.setColor(Color.argb(255, 255, 187, 0)); // 低於等於 80% 顯示黃色
-        else  mWavePaint.setColor(Color.argb(255, 0, 255, 0)); // 大於 80% 顯示綠色
+        else if(mWaterLevel > 0.8f)  mWavePaint.setColor(Color.argb(255, 0, 255, 0)); // 大於 80% 顯示綠色
+        this.mWaterLevel = mWaterLevel;
     }
 
     private void init(Context context) {
